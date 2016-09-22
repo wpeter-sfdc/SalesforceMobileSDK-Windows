@@ -576,7 +576,7 @@ namespace Salesforce.SDK.Auth
 
         private string RetrievePincode()
         {
-            var pin = _vault.Retrieve(PasswordVaultSecuredData, PasswordVaultPincode);
+            var pin = SafeRetrievePin();
 
             if (pin == null)
             {
@@ -590,7 +590,7 @@ namespace Salesforce.SDK.Auth
 
         private void DeletePincode()
         {
-            var pin = _vault.Retrieve(PasswordVaultSecuredData, PasswordVaultPincode);
+            var pin = SafeRetrievePin();
 
             // no pin
             if (pin == null)
@@ -601,6 +601,18 @@ namespace Salesforce.SDK.Auth
             LoggingService.Log("removed pincode from vault",
                 LoggingLevel.Verbose);
             _vault.Remove(pin);
+        }
+
+        private PasswordCredential SafeRetrievePin()
+        {
+            try
+            {
+                return _vault.Retrieve(PasswordVaultSecuredData, PasswordVaultPincode);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void PersistData(bool replace, string key, string data, string nonce = null)

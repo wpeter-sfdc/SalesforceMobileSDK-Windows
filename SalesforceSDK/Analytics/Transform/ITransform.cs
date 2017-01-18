@@ -1,5 +1,5 @@
-﻿/*
- * Copyright (c) 2014, salesforce.com, inc.
+/*
+ * Copyright (c) 2016-present, salesforce.com, inc.
  * All rights reserved.
  * Redistribution and use of this software in source and binary forms, with or
  * without modification, are permitted provided that the following conditions
@@ -25,49 +25,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
-using Salesforce.SDK.App;
-using Salesforce.SDK.Auth;
-using Salesforce.SDK.Core;
-using Salesforce.SDK.Logging;
+using Newtonsoft.Json.Linq;
+using Salesforce.SDK.Analytics.Model;
 
-namespace Salesforce.SDK.Native
+namespace Salesforce.SDK.Analytics.Transform
 {
-    public class NativeMainPage : Page, ISalesforcePage
+    /// <summary>
+    /// Represents a transformation of generic event to a specific format.
+    /// </summary>
+    public interface ITransform
     {
         /// <summary>
-        ///     Helper method for handling logout.
+        /// Transforms an event into the required format.
         /// </summary>
-        protected async void OnLogout()
-        {
-            await SDKManager.GlobalClientManager.LogoutAsync();
-
-            await CheckIfLoginNeededAsync();
-        }
-
-        /// <summary>
-        ///     When navigated to, we try to get a RestClient
-        ///     If we are not already authenticated, this will kick off the login flow
-        /// </summary>
-        /// <param name="e"></param>
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-
-            await CheckIfLoginNeededAsync();
-        }
-
-        private async Task CheckIfLoginNeededAsync()
-        {
-            Account account = AccountManager.GetAccount();
-            if (account == null)
-            {
-                SDKServiceLocator.Get<ILoggingService>().Log("Account object is null, calling StartLoginFlowAsync",
-                                                          LoggingLevel.Verbose);
-                await SDKServiceLocator.Get<IAuthHelper>().StartLoginFlowAsync();
-            }
-        }
+        /// <param name="instrumentationEvent"></param>
+        /// <returns>JSON representation after transformation</returns>
+        JObject Transform(InstrumentationEvent instrumentationEvent);
     }
 }

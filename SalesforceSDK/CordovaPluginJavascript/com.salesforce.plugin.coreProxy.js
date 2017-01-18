@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2015, salesforce.com, inc.
+* Copyright (c) 2015-present, salesforce.com, inc.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided
@@ -23,9 +23,11 @@
 * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 */
-/// <reference path="../typings/WinJS-3.0.d.ts"/>
-/// <reference path="../typings/Salesforce.SDK.Hybrid.d.ts"/>
-/// <reference path="../typings/winrt.d.ts"/>
+var SALESFORCE_MOBILE_SDK_VERSION = "5.0.0";
+var SERVICE = "com.salesforce.oauth";
+
+var exec = require("com.salesforce.util.exec").exec;
+
 var SalesforceJS;
 (function (SalesforceJS) {
     var BootConfig = (function () {
@@ -218,5 +220,5 @@ var SalesforceJS;
 module.exports = {
    SalesforceJS : SalesforceJS
 };
-//# sourceMappingURL=salesforce.windows.core.js.map
-require("cordova/exec/proxy").add("com.salesforce.SalesforceCore", module.exports);
+
+require("cordova/exec/proxy").add("com.salesforce.oauth", module.exports);

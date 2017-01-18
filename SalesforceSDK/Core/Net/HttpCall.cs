@@ -1,5 +1,5 @@
-﻿/*
- * Copyright (c) 2013, salesforce.com, inc.
+/*
+ * Copyright (c) 2013-present, salesforce.com, inc.
  * All rights reserved.
  * Redistribution and use of this software in source and binary forms, with or
  * without modification, are permitted provided that the following conditions
@@ -28,6 +28,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -50,6 +52,7 @@ namespace Salesforce.SDK.Net
         FormUrlEncoded,
         Json,
         Xml,
+        Gzip,
         None
     }
 
@@ -83,6 +86,9 @@ namespace Salesforce.SDK.Net
                     return "application/x-www-form-urlencoded";
                 case ContentTypeValues.Xml:
                     return "text/xml";
+                case ContentTypeValues.Gzip:
+                    return "application/json";
+
                 default:
                     return null;
             }
@@ -332,6 +338,10 @@ namespace Salesforce.SDK.Net
                     case ContentTypeValues.FormUrlEncoded:
                         req.Content = new FormUrlEncodedContent(_requestBody.ParseQueryString());
                         break;
+                    case ContentTypeValues.Gzip:
+                        req.Content = await CompressAsync(new StringContent(_requestBody));
+
+                        break;
                     default:
                         req.Content = new StringContent(_requestBody);
                         req.Content.Headers.ContentType = new MediaTypeHeaderValue(_contentType.MimeType());
@@ -419,6 +429,23 @@ namespace Salesforce.SDK.Net
                     : ex;
             }
             response.Dispose();
+        }
+
+        private async Task<StreamContent> CompressAsync(StringContent content)
+        {
+            var ms = new MemoryStream();
+            using (var gzipStream = new GZipStream(ms, CompressionMode.Compress, true))
+            {
+                await content.CopyToAsync(gzipStream);
+                await gzipStream.FlushAsync();
+            }
+
+            ms.Position = 0;
+            var compressedStreamContent = new StreamContent(ms);
+            compressedStreamContent.Headers.ContentType = new MediaTypeHeaderValue(_contentType.MimeType());
+            compressedStreamContent.Headers.Add("Content-Encoding", "gzip");
+
+            return compressedStreamContent;
         }
 
         public void Dispose()

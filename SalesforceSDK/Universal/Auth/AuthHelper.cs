@@ -1,5 +1,5 @@
-﻿/*
- * Copyright (c) 2013, salesforce.com, inc.
+/*
+ * Copyright (c) 2013-present, salesforce.com, inc.
  * All rights reserved.
  * Redistribution and use of this software in source and binary forms, with or
  * without modification, are permitted provided that the following conditions
@@ -96,6 +96,12 @@ namespace Salesforce.SDK.Auth
         public Task PersistCurrentAccountAsync(Account account)
         {
             AuthStorageHelper.GetAuthStorageHelper().PersistCurrentCredentials(account);
+            return Task.FromResult(0);
+        }
+
+        public Task PersistCurrentPincodeAsync(Account account)
+        {
+            AuthStorageHelper.GetAuthStorageHelper().PersistPincode(account.Policy);
             return Task.FromResult(0);
         }
 
